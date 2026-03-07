@@ -2,5 +2,14 @@
   "nombre": "Altenza",
   "tagline": "Nuestra",
   "waNumber": "50369567050",
-  "productos": []
+  "productos": [
+    {
+      "id": "p_1772909444200",
+      "nombre": "Othh",
+      "precio": 1.5,
+      "categoria": "Platos fuertes",
+      "descripcion": "",
+      "imagen": null
+    }
+  ]
 }
