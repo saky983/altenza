@@ -18,6 +18,22 @@
       "categoria": "Platos fuertes",
       "descripcion": "Sopa de pata hecha con los mejores ingredientes",
       "imagen": null
+    },
+    {
+      "id": "p_1772926264813",
+      "nombre": "Pollo guisado",
+      "precio": 2.75,
+      "categoria": "Platos fuertes",
+      "descripcion": "",
+      "imagen": null
+    },
+    {
+      "id": "p_1772926280084",
+      "nombre": "Tres leches",
+      "precio": 1.75,
+      "categoria": "Postres",
+      "descripcion": "",
+      "imagen": null
     }
   ]
 }
