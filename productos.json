@@ -1,6 +1,6 @@
 {
   "nombre": "Altenza",
-  "tagline": "Nuestra",
+  "tagline": "Sabor que enamora",
   "waNumber": "50369567050",
   "productos": [
     {
@@ -9,6 +9,14 @@
       "precio": 1.5,
       "categoria": "Platos fuertes",
       "descripcion": "",
+      "imagen": null
+    },
+    {
+      "id": "p_1772919894432",
+      "nombre": "Sopa de pata",
+      "precio": 3.5,
+      "categoria": "Platos fuertes",
+      "descripcion": "Sopa de pata hecha con los mejores ingredientes",
       "imagen": null
     }
   ]
