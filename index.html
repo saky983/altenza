@@ -502,7 +502,7 @@ header p {
 const GITHUB_USER = 'saky983';
 const GITHUB_REPO = 'altenza';
 const DATA_FILE   = 'productos.json';
-const WA_NUMBER   = 50369567050'; // número con código de país, sin +
+let WA_NUMBER = '50200000000'; // se sobreescribe desde productos.json
 
 // ── Estado ────────────────────────────────────────────────
 let productos = [];
@@ -529,6 +529,7 @@ async function cargarProductos() {
       document.getElementById('resto-name').textContent = data.nombre;
       document.title = data.nombre;
     }
+    if (data.waNumber) { WA_NUMBER = data.waNumber; }
     if (data.tagline) {
       document.getElementById('resto-tagline').textContent = data.tagline;
     }
