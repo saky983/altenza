@@ -1,4 +1,4 @@
-const CACHE_NAME = 'restaurante-v1';
+const CACHE_NAME = 'restaurante-v2';
 
 const ASSETS = [
   './',
