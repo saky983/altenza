@@ -182,6 +182,43 @@ textarea { resize:vertical; min-height:70px; }
 .tab-content { display:none; }
 .tab-content.active { display:block; }
 
+
+/* PROMOCIONES */
+.toggle-wrap {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+.toggle {
+  position: relative; width: 52px; height: 28px;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; inset: 0; border-radius: 28px;
+  background: #cbd5e1; cursor: pointer; transition: .3s;
+}
+.slider:before {
+  content: ''; position: absolute;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: white; left: 3px; top: 3px; transition: .3s;
+}
+input:checked + .slider { background: var(--green); }
+input:checked + .slider:before { transform: translateX(24px); }
+.toggle-label { font-size: 1rem; color: var(--vino-dark); font-weight: 500; }
+
+.promo-grid { display: grid; gap: 10px; margin-top: 12px; }
+.promo-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px; border-radius: 10px;
+  background: #fafafa; border: 1px solid #f0ebe0;
+}
+.promo-thumb {
+  width: 72px; height: 54px; border-radius: 8px;
+  object-fit: cover; background: var(--gold-pale);
+  flex-shrink: 0; overflow: hidden;
+}
+.promo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.promo-info { flex: 1; }
+.promo-title { font-family: 'Playfair Display', serif; font-size: .9rem; color: var(--vino-dark); }
+
 /* Spinner */
 .spin {
   width:18px; height:18px;
@@ -225,6 +262,7 @@ textarea { resize:vertical; min-height:70px; }
       <button class="tab active" onclick="setTab('agregar')">➕ Agregar platillo</button>
       <button class="tab" onclick="setTab('lista')">📋 Mis platillos</button>
       <button class="tab" onclick="setTab('config')">⚙️ Configuración</button>
+      <button class="tab" onclick="setTab('promos')">🎉 Promociones</button>
     </div>
   </div>
 
@@ -374,9 +412,133 @@ textarea { resize:vertical; min-height:70px; }
     </div>
   </div>
 
+
+  <!-- TAB: PROMOCIONES -->
+  <div class="tab-content" id="tab-promos">
+    <div class="section">
+      <div class="section-head">🎉 Promociones</div>
+
+      <div class="toggle-wrap">
+        <label class="toggle">
+          <input type="checkbox" id="promo-activas" onchange="togglePromos()">
+          <span class="slider"></span>
+        </label>
+        <span class="toggle-label" id="toggle-label">Promociones desactivadas</span>
+      </div>
+
+      <div class="form-grid">
+        <div>
+          <label>Título de la promoción</label>
+          <input type="text" id="promo-titulo" placeholder="Ej: 2x1 en postres hoy">
+        </div>
+        <div>
+          <label>Imagen de la promoción</label>
+          <div class="img-upload-area" onclick="document.getElementById('promo-img-input').click()">
+            <input type="file" id="promo-img-input" accept="image/*" onchange="previewPromoImg(this)" style="display:none">
+            <img id="promo-img-preview" class="img-preview">
+            <div class="img-placeholder" id="promo-img-placeholder">
+              <span>🖼️</span>
+              Toca para seleccionar imagen
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="agregarPromo()">➕ Agregar promoción</button>
+          <button class="btn btn-outline" onclick="limpiarPromoForm()">Limpiar</button>
+        </div>
+        <div class="status-bar" id="status-promo"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">📋 Promociones actuales
+        <button class="btn btn-outline" style="margin-left:auto;font-size:.8rem;padding:6px 14px" onclick="cargarDesdeGithub()">
+          🔄 Recargar
+        </button>
+      </div>
+      <div class="promo-grid" id="promo-list">
+        <div style="text-align:center;color:#aaa;padding:20px;font-style:italic">No hay promociones</div>
+      </div>
+      <div style="margin-top:14px">
+        <button class="btn btn-success" onclick="publicarMenu()">🚀 Publicar cambios en GitHub</button>
+      </div>
+      <div class="status-bar" id="status-promo-list"></div>
+    </div>
+  </div>
+
 </div><!-- /admin-screen -->
 
 <script>
+
+// ════════════════════════════════════════════════════════════
+// PROMOCIONES
+// ════════════════════════════════════════════════════════════
+let promoImgBase64 = null;
+let promociones = { activas: false, imagenes: [] };
+
+function togglePromos() {
+  const on = document.getElementById('promo-activas').checked;
+  promociones.activas = on;
+  document.getElementById('toggle-label').textContent =
+    on ? 'Promociones ACTIVAS ✅' : 'Promociones desactivadas';
+}
+
+function previewPromoImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    promoImgBase64 = e.target.result;
+    document.getElementById('promo-img-preview').src = promoImgBase64;
+    document.getElementById('promo-img-preview').style.display = 'block';
+    document.getElementById('promo-img-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function agregarPromo() {
+  const titulo = document.getElementById('promo-titulo').value.trim();
+  const st = document.getElementById('status-promo');
+  if (!promoImgBase64) return showStatus(st, 'error', '⚠️ Selecciona una imagen');
+  promociones.imagenes.push({ titulo, url: promoImgBase64 });
+  localStorage.setItem('resto_promos', JSON.stringify(promociones));
+  showStatus(st, 'success', '✅ Promoción agregada. Publica los cambios.');
+  limpiarPromoForm();
+  renderPromos();
+}
+
+function limpiarPromoForm() {
+  document.getElementById('promo-titulo').value = '';
+  document.getElementById('promo-img-preview').style.display = 'none';
+  document.getElementById('promo-img-placeholder').style.display = 'block';
+  promoImgBase64 = null;
+}
+
+function eliminarPromo(idx) {
+  if (!confirm('¿Eliminar esta promoción?')) return;
+  promociones.imagenes.splice(idx, 1);
+  localStorage.setItem('resto_promos', JSON.stringify(promociones));
+  renderPromos();
+}
+
+function renderPromos() {
+  const wrap = document.getElementById('promo-list');
+  if (!promociones.imagenes.length) {
+    wrap.innerHTML = '<div style="text-align:center;color:#aaa;padding:20px;font-style:italic">No hay promociones</div>';
+    return;
+  }
+  wrap.innerHTML = promociones.imagenes.map((p, i) => `
+    <div class="promo-item">
+      <div class="promo-thumb">
+        <img src="${p.url}" alt="${p.titulo || ''}">
+      </div>
+      <div class="promo-info">
+        <div class="promo-title">${p.titulo || '(Sin título)'}</div>
+      </div>
+      <button class="btn btn-danger" onclick="eliminarPromo(${i})">🗑️</button>
+    </div>`).join('');
+}
+
 // ════════════════════════════════════════════════════════════
 // CONFIGURACIÓN LOCAL
 // ════════════════════════════════════════════════════════════
@@ -389,6 +551,8 @@ let imgBase64 = null;
 function loadLocal() {
   cfg = JSON.parse(localStorage.getItem('resto_cfg') || '{}');
   productos = JSON.parse(localStorage.getItem('resto_productos') || '[]');
+  const savedPromos = JSON.parse(localStorage.getItem('resto_promos') || 'null');
+  if (savedPromos) { promociones = savedPromos; document.getElementById('promo-activas').checked = promociones.activas; document.getElementById('toggle-label').textContent = promociones.activas ? 'Promociones ACTIVAS ✅' : 'Promociones desactivadas'; }
   if (cfg.user)    document.getElementById('cfg-user').value    = cfg.user    || '';
   if (cfg.repo)    document.getElementById('cfg-repo').value    = cfg.repo    || '';
   if (cfg.token)   document.getElementById('cfg-token').value   = cfg.token   || '';
@@ -436,7 +600,7 @@ function cambiarPwd() {
 // ════════════════════════════════════════════════════════════
 function setTab(id) {
   document.querySelectorAll('.tab').forEach((t,i) => {
-    const ids = ['agregar','lista','config'];
+    const ids = ['agregar','lista','config','promos'];
     t.classList.toggle('active', ids[i] === id);
   });
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -557,6 +721,7 @@ async function cargarDesdeGithub() {
     if (data.nombre)  { cfg.nombre  = data.nombre;  document.getElementById('cfg-nombre').value  = data.nombre;  }
     if (data.tagline) { cfg.tagline = data.tagline; document.getElementById('cfg-tagline').value = data.tagline; }
     if (data.waNumber){ cfg.wa      = data.waNumber; document.getElementById('cfg-wa').value      = data.waNumber; }
+    if (data.promociones) { promociones = data.promociones; localStorage.setItem('resto_promos', JSON.stringify(promociones)); document.getElementById('promo-activas').checked = promociones.activas; document.getElementById('toggle-label').textContent = promociones.activas ? 'Promociones ACTIVAS ✅' : 'Promociones desactivadas'; renderPromos(); }
     localStorage.setItem('resto_productos', JSON.stringify(productos));
     localStorage.setItem('resto_cfg', JSON.stringify(cfg));
     showStatus(st, 'success', `✅ ${productos.length} platillos cargados desde GitHub`);
@@ -579,9 +744,10 @@ async function publicarMenu() {
   showStatus(st, 'loading', '<span class="spin"></span> Publicando en GitHub...');
 
   const contenido = {
-    nombre:   cfg.nombre   || 'Mi Restaurante',
-    tagline:  cfg.tagline  || 'Nuestra carta',
-    waNumber: cfg.wa       || '',
+    nombre:      cfg.nombre   || 'Mi Restaurante',
+    tagline:     cfg.tagline  || 'Nuestra carta',
+    waNumber:    cfg.wa       || '',
+    promociones: promociones,
     productos
   };
 
