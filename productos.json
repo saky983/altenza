@@ -34,6 +34,14 @@
       "categoria": "Postres",
       "descripcion": "",
       "imagen": null
+    },
+    {
+      "id": "p_1772941958888",
+      "nombre": "Pollo",
+      "precio": 3.75,
+      "categoria": "Entradas",
+      "descripcion": "",
+      "imagen": null
     }
   ]
 }
