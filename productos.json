@@ -2,15 +2,11 @@
   "nombre": "Altenza",
   "tagline": "Sabor que enamora",
   "waNumber": "50369567050",
+  "promociones": {
+    "activas": false,
+    "imagenes": []
+  },
   "productos": [
-    {
-      "id": "p_1772909444200",
-      "nombre": "Othh",
-      "precio": 1.5,
-      "categoria": "Platos fuertes",
-      "descripcion": "",
-      "imagen": null
-    },
     {
       "id": "p_1772919894432",
       "nombre": "Sopa de pata",
